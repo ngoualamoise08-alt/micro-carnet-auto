@@ -1,0 +1,6 @@
+{
+  "name": "Micro-Carnet Auto",
+  "description": "Application d'atelier pour mécaniciens automobiles : dictée vocale d'intervention, extraction IA des pièces, kilométrages et révisions, signatures manuscrites et export Word (.docx).",
+  "requestFramePermissions": ["android.permission.RECORD_AUDIO"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
