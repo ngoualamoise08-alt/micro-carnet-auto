@@ -14,7 +14,6 @@ import {
   Clock,
   ArrowRight,
   Search,
-  Star,
   Activity,
   Truck,
   Check,
@@ -219,22 +218,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#fcfcfd] text-slate-900 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-900">
-      {/* 1. Top Utility Notification Strip */}
-      <div className="bg-[#1d4ed8] text-white text-[11px] font-semibold tracking-wider uppercase py-2 px-4">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-300" />
-            <span>ATELIER AUTOMOBILE · VÉHICULES LÉGERS, VUL & POIDS LOURDS · GESTION DE FLOTTES · CONFORME CNPA / ANFA</span>
-          </div>
-          <div className="hidden sm:flex items-center gap-4 text-blue-100 text-[10px]">
-            <span>SUPPORT ATELIER : +33 1 42 00 39 00</span>
-            <span>·</span>
-            <span className="text-amber-300 font-bold">EXPORT WORD (.DOCX) OFFICIEL</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Main Navigation Bar */}
+      {/* Main Navigation Bar */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           {/* Brand Wordmark with Hamburger icon */}
@@ -307,11 +291,11 @@ export default function App() {
             <div className="lg:col-span-7 space-y-4">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-700">
                 <span className="w-2 h-2 bg-blue-600 rounded-xs" />
-                <span>GMAO AUTOMOBILE · FLOTTES, UTILITAIRES & ATELIER MÉCANIQUE</span>
+                <span>ATELIER MÉCANIQUE & GESTION DE PARC</span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-950 tracking-tight leading-[1.15]">
-                La maintenance qui garde vos véhicules sur la route.
+                Carnet d'intervention & maintenance automobile.
               </h1>
 
               <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-xl">
@@ -337,18 +321,6 @@ export default function App() {
                   <span>Voir la fiche d'intervention</span>
                 </button>
               </div>
-
-              {/* Social Proof Star Rating Strip */}
-              <div className="pt-3 flex items-center gap-2 text-xs text-slate-600">
-                <div className="flex text-amber-500">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-current" />
-                  ))}
-                </div>
-                <span className="font-bold text-slate-900">4.9/5</span>
-                <span className="text-slate-400">·</span>
-                <span>Validé par plus de 1,200 mécaniciens d'atelier & gestionnaires de flottes auto</span>
-              </div>
             </div>
 
             {/* Right Column: Automotive Visual Card with Live Telemetry Overlay */}
@@ -363,7 +335,6 @@ export default function App() {
                 {/* Top Badge */}
                 <div className="relative z-10 flex items-center justify-between">
                   <div className="flex items-center gap-2 bg-slate-900/80 backdrop-blur-md border border-slate-700/80 px-2.5 py-1 rounded-md text-[11px] font-mono text-slate-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                     <span>ATELIER AUTOMOBILE CONNECTÉ</span>
                   </div>
                   <span className="text-[11px] font-mono font-bold text-amber-400">
