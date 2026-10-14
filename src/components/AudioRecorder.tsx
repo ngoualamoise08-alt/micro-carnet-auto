@@ -544,11 +544,6 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
             </div>
           )}
         </div>
-
-        {/* Tip caption for technician */}
-        <p className="mt-3 text-[11px] text-slate-500 italic">
-          Exemple : "Révision des 140 000 km sur le Renault Master EK-842-WX. Vidange moteur avec 7 litres d'huile 5W30 C3, remplacement du filtre à huile et filtre d'habitacle. Remplacement du jeu de plaquettes de frein avant usées à 80%. Contrôle de la batterie 12V et pression des pneumatiques conforme. Véhicule prêt à rouler."
-        </p>
       </div>
     </section>
   );

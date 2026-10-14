@@ -117,76 +117,7 @@ export default function App() {
     }
   };
 
-  // Pre-load demo data matching automotive workshop and commercial fleet context
-  const handleLoadDemo = () => {
-    const today = new Date().toISOString().split('T')[0];
-    setFormData({
-      id: `rep-demo-${Date.now()}`,
-      numeroRapport: `INT-${today.replace(/-/g, '')}-482`,
-      date: today,
-      technicien: 'Marc D. (Chef d\'Atelier Automobile)',
-      nomSignataireTechnicien: 'Marc D.',
-      vehicule: 'Renault Master 2.3 dCi 150 L2H2 Fourgon',
-      equipement: 'Renault Master 2.3 dCi 150 L2H2 Fourgon',
-      immatriculation: 'EK-842-WX',
-      vin: 'VF1MA000054891230',
-      typeIntervention: 'Révision & Vidange',
-      statutVehicule: 'Prêt à rouler / Conforme',
-      statutMachine: 'Prêt à rouler / Conforme',
-      compteurValeur: 142500,
-      compteurUnite: 'Km',
-      dureeEstimee: '2h30',
-      travaux: [
-        'Vidange complète carter moteur et remplacement du filtre à huile Mann-Filter',
-        'Remplacement du jeu de plaquettes de frein avant ventilées et contrôle des disques (épaisseur 26.2 mm, conforme)',
-        'Contrôle des 30 points de sécurité : pneumatiques (AV 4.5 mm, AR 5.2 mm), rotules de direction et amortisseurs',
-        'Purge et mise à niveau des fluides (liquide de frein DOT4, lave-glace et liquide de refroidissement -35°C)',
-        'Réinitialisation de l\'indicateur d\'entretien au tableau de bord (prochaine révision à 172 500 Km)',
-      ],
-      pieces: [
-        {
-          id: 'p-demo-1',
-          designation: 'Huile moteur synthèse 5W30 C3 Low-SAPS',
-          reference: 'TOTAL-INEO-5W30',
-          quantite: 8,
-          unite: 'L',
-          pieceRemplacee: 'Huile moteur 5W30 usagée vidangée',
-          motifRemplacement: 'Entretien préventif',
-        },
-        {
-          id: 'p-demo-2',
-          designation: 'Filtre à huile moteur Mann-Filter',
-          reference: 'HU-7020-Z',
-          quantite: 1,
-          unite: 'pièce',
-          pieceRemplacee: 'Filtre à huile colmaté',
-          motifRemplacement: 'Entretien préventif',
-        },
-        {
-          id: 'p-demo-3',
-          designation: 'Jeu de plaquettes de frein avant ventilées',
-          reference: 'BREMBO-P68050',
-          quantite: 1,
-          unite: 'jeu',
-          pieceRemplacee: 'Plaquettes avant usées à 85% avec témoin allumé',
-          motifRemplacement: 'Usure normale',
-        },
-        {
-          id: 'p-demo-4',
-          designation: 'Filtre d\'habitacle anti-allergène & pollen',
-          reference: 'FP-26-009',
-          quantite: 1,
-          unite: 'pièce',
-          pieceRemplacee: 'Filtre habitacle encrassé et saturé',
-          motifRemplacement: 'Entretien préventif',
-        },
-      ],
-      anomalies: 'Plaquettes arrière à prévoir lors du prochain contrôle dans 15 000 km. Pression des 4 pneumatiques ajustée à 3.2 bars. Essai sur route validé : aucun voyant moteur ni défaut freinage.',
-      transcription: 'Révision des 140 000 km effectuée sur le Renault Master immatriculé EK-842-WX. Compteur affiché à 142 500 kilomètres. Vidange moteur avec 8 litres d\'huile synthèse 5W30 et changement du filtre à huile Mann. Remplacement des plaquettes de frein avant qui étaient bien entamées, disques encore dans les cotes. Remplacement filtre habitacle. Contrôle des niveaux et pression des pneus fait, essai routier concluant, véhicule prêt à reprendre la route.',
-      nomSignataireClient: 'Laurent B. (Responsable Flotte Véhicules)',
-    });
-    showToast('success', 'Fiche d\'intervention véhicule de démonstration chargée.');
-  };
+
 
   const handleExportWord = async () => {
     setIsExporting(true);
@@ -264,10 +195,11 @@ export default function App() {
 
             <button
               type="button"
-              onClick={handleLoadDemo}
+              onClick={handleResetForm}
               className="hidden sm:flex items-center px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition-colors cursor-pointer"
+              title="Créer une nouvelle fiche vierge"
             >
-              Exemple Véhicule
+              Nouvelle fiche
             </button>
 
             <button
