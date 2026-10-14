@@ -24,14 +24,25 @@ import { InterventionForm } from './components/InterventionForm';
 import { RecentInterventions } from './components/RecentInterventions';
 import { generateInterventionDocx, downloadInterventionDocx } from './services/wordExport';
 
+const DRAFT_STORAGE_KEY = 'micro_carnet_auto_active_draft_v1';
+const TECHNICIAN_STORAGE_KEY = 'micro_carnet_technicien_pref';
+
 const getInitialFormData = (): InterventionFormData => {
   const today = new Date().toISOString().split('T')[0];
   const randomSuffix = Math.floor(100 + Math.random() * 900);
+  let savedTech = '';
+  try {
+    savedTech = localStorage.getItem(TECHNICIAN_STORAGE_KEY) || '';
+  } catch (e) {
+    // ignore
+  }
+
   return {
     id: `rep-${Date.now()}`,
     numeroRapport: `INT-${today.replace(/-/g, '')}-${randomSuffix}`,
     date: today,
-    technicien: '',
+    technicien: savedTech,
+    nomSignataireTechnicien: savedTech,
     vehicule: '',
     equipement: '',
     immatriculation: '',
@@ -49,15 +60,50 @@ const getInitialFormData = (): InterventionFormData => {
 };
 
 export default function App() {
-  const [formData, setFormData] = useState<InterventionFormData>(getInitialFormData());
+  const [formData, setFormData] = useState<InterventionFormData>(() => {
+    // Attempt to restore active draft to avoid any loss of work on mobile refresh
+    try {
+      const draft = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (draft) {
+        const parsed = JSON.parse(draft);
+        if (parsed && typeof parsed === 'object' && parsed.numeroRapport) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not restore draft on boot:', e);
+    }
+    return getInitialFormData();
+  });
+
   const [isProcessingAI, setIsProcessingAI] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [lastSavedTime, setLastSavedTime] = useState<string>('Enregistré');
   const [notification, setNotification] = useState<{
     type: 'success' | 'error' | 'info';
     message: string;
   } | null>(null);
 
   const formSectionRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-save form draft to localStorage on every change to prevent mobile data loss
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(formData));
+      if (formData.technicien?.trim()) {
+        localStorage.setItem(TECHNICIAN_STORAGE_KEY, formData.technicien.trim());
+      }
+      setLastSavedTime(
+        new Date().toLocaleTimeString('fr-FR', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
+      );
+    } catch (e) {
+      console.warn('Could not auto-save draft:', e);
+    }
+  }, [formData]);
 
   const showToast = (type: 'success' | 'error' | 'info', message: string) => {
     setNotification({ type, message });
@@ -112,12 +158,15 @@ export default function App() {
 
   const handleResetForm = () => {
     if (window.confirm('Voulez-vous créer une nouvelle fiche d\'intervention vierge ?')) {
+      try {
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+      } catch (e) {
+        // ignore
+      }
       setFormData(getInitialFormData());
       showToast('info', 'Nouvelle fiche vierge initialisée.');
     }
   };
-
-
 
   const handleExportWord = async () => {
     setIsExporting(true);
@@ -183,8 +232,14 @@ export default function App() {
             <a href="#export" className="hover:text-blue-600 transition-colors">Export Word</a>
           </nav>
 
-          {/* Right Zone: Search/Tracking badge & CTA Button */}
-          <div className="flex items-center gap-2.5">
+          {/* Right Zone: Search/Tracking badge, auto-save status & CTA Button */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Auto-save indicator */}
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 rounded-full text-[11px] font-medium" title="Votre travail est sauvegardé en continu sans risque de perte">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Brouillon sécurisé</span>
+            </div>
+
             <div className="hidden sm:flex items-center bg-slate-100/90 border border-slate-200 rounded-full px-3 py-1.5 text-xs text-slate-600">
               <span className="text-[11px] font-mono text-slate-400 font-semibold mr-1.5">FICHE :</span>
               <span className="font-mono text-xs font-bold text-blue-900 truncate max-w-[110px]">

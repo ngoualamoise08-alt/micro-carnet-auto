@@ -53,10 +53,33 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({
     raw: p,
   }));
 
+  // Automatically check if entered plate matches any known vehicle in workshop catalog
+  const cleanInputImmat = (formData.immatriculation || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  const detectedVehicle = React.useMemo(() => {
+    if (cleanInputImmat.length < 3) return null;
+    return (
+      MOCK_VEHICULES.find((v) =>
+        v.immatriculation.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().includes(cleanInputImmat)
+      ) || null
+    );
+  }, [cleanInputImmat]);
+
   const handleFieldChange = (field: keyof InterventionFormData, value: any) => {
     onChange({
       ...formData,
       [field]: value,
+    });
+  };
+
+  // Synchronize technician name with the technician signature block automatically
+  const handleTechnicienChange = (val: string) => {
+    onChange({
+      ...formData,
+      technicien: val,
+      nomSignataireTechnicien:
+        !formData.nomSignataireTechnicien || formData.nomSignataireTechnicien === formData.technicien
+          ? val
+          : formData.nomSignataireTechnicien,
     });
   };
 
@@ -227,7 +250,7 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({
               <input
                 type="text"
                 value={formData.technicien}
-                onChange={(e) => handleFieldChange('technicien', e.target.value)}
+                onChange={(e) => handleTechnicienChange(e.target.value)}
                 placeholder="Ex: Marc D., Atelier Principal"
                 className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 font-medium focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none"
               />
@@ -273,6 +296,33 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({
                 placeholder="Ex: FP-342-ZA"
                 className="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 font-mono font-medium focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none uppercase"
               />
+              {detectedVehicle && formData.vehicule !== detectedVehicle.marqueModele && (
+                <div className="mt-1.5 p-2 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between gap-2 text-xs">
+                  <div className="truncate text-blue-900">
+                    <span className="font-bold">✨ Modèle détecté :</span>{' '}
+                    <span>{detectedVehicle.marqueModele}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onChange({
+                        ...formData,
+                        vehicule: detectedVehicle.marqueModele,
+                        equipement: detectedVehicle.marqueModele,
+                        vin: detectedVehicle.vin || formData.vin,
+                        compteurUnite: detectedVehicle.typeCompteur || formData.compteurUnite,
+                        compteurValeur:
+                          formData.compteurValeur === ''
+                            ? detectedVehicle.dernierCompteur
+                            : formData.compteurValeur,
+                      });
+                    }}
+                    className="px-2 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded text-[10px] font-bold shrink-0 cursor-pointer"
+                  >
+                    Remplir
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -479,7 +529,7 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({
         {/* Quick Add Suggestions Strip (Automotive Parts) */}
         <div className="px-4 py-2.5 bg-blue-50/60 border-b border-slate-200/80 flex items-center gap-2 overflow-x-auto text-xs">
           <span className="text-[11px] font-bold uppercase tracking-wider text-blue-900 shrink-0">
-            Ajout rapide pièce véhicule :
+            Ajout rapide pièce :
           </span>
           <div className="flex items-center gap-1.5 shrink-0">
             <button
@@ -491,24 +541,24 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({
             </button>
             <button
               type="button"
+              onClick={() => handleAddPiece({ designation: 'Jeu de plaquettes de frein arrière', reference: 'BREMBO-P68052', quantite: 1, unite: 'jeu', pieceRemplacee: 'Plaquettes arrière usées à 80%', motifRemplacement: 'Usure normale' })}
+              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
+            >
+              + Plaquettes AR
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAddPiece({ designation: 'Paire de disques de frein avant 280mm', reference: 'BREMBO-09.A427.11', quantite: 1, unite: 'paire', pieceRemplacee: 'Disques avec cote minimale atteinte', motifRemplacement: 'Usure normale' })}
+              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
+            >
+              + Disques AV
+            </button>
+            <button
+              type="button"
               onClick={() => handleAddPiece({ designation: 'Filtre à huile moteur Mann-Filter', reference: 'HU-7020-Z', quantite: 1, unite: 'pièce', pieceRemplacee: 'Filtre à huile usagé', motifRemplacement: 'Entretien préventif' })}
               className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
             >
               + Filtre Huile
-            </button>
-            <button
-              type="button"
-              onClick={() => handleAddPiece({ designation: 'Huile moteur synthèse 5W30 C3 Low-SAPS', reference: 'TOTAL-INEO-5W30', quantite: 5, unite: 'L', pieceRemplacee: 'Huile moteur usagée vidangée', motifRemplacement: 'Entretien préventif' })}
-              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
-            >
-              + Huile 5W30 (5L)
-            </button>
-            <button
-              type="button"
-              onClick={() => handleAddPiece({ designation: 'Filtre d\'habitacle anti-allergène & pollen', reference: 'FP-26-009', quantite: 1, unite: 'pièce', pieceRemplacee: 'Filtre habitacle saturé', motifRemplacement: 'Entretien préventif' })}
-              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
-            >
-              + Filtre Habitacle
             </button>
             <button
               type="button"
@@ -519,10 +569,31 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => handleAddPiece({ designation: 'Paire de disques de frein avant 280mm', reference: 'BREMBO-09.A427.11', quantite: 1, unite: 'paire', pieceRemplacee: 'Disques avec cote minimale atteinte', motifRemplacement: 'Usure normale' })}
+              onClick={() => handleAddPiece({ designation: 'Filtre à air moteur Mann-Filter', reference: 'C-27-009', quantite: 1, unite: 'pièce', pieceRemplacee: 'Filtre à air encrassé', motifRemplacement: 'Entretien préventif' })}
               className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
             >
-              + Disques Frein AV
+              + Filtre Air
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAddPiece({ designation: 'Filtre d\'habitacle anti-allergène & pollen', reference: 'FP-26-009', quantite: 1, unite: 'pièce', pieceRemplacee: 'Filtre habitacle saturé', motifRemplacement: 'Entretien préventif' })}
+              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
+            >
+              + Filtre Habitacle
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAddPiece({ designation: 'Huile moteur synthèse 5W30 C3 Low-SAPS', reference: 'TOTAL-INEO-5W30', quantite: 5, unite: 'L', pieceRemplacee: 'Huile moteur usagée vidangée', motifRemplacement: 'Entretien préventif' })}
+              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
+            >
+              + Huile 5W30 (5L)
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAddPiece({ designation: 'Huile moteur 5W40 synthèse haute performance', reference: 'CASTROL-EDGE-5W40', quantite: 5, unite: 'L', pieceRemplacee: 'Huile usagée vidangée', motifRemplacement: 'Entretien préventif' })}
+              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
+            >
+              + Huile 5W40 (5L)
             </button>
             <button
               type="button"
@@ -530,6 +601,27 @@ export const InterventionForm: React.FC<InterventionFormProps> = ({
               className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
             >
               + Batterie 12V
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAddPiece({ designation: 'Liquide de frein synthétique DOT 4 haute ébullition', reference: 'BOSCH-DOT4', quantite: 1, unite: 'L', pieceRemplacee: 'Liquide de frein hygroscopique usagé', motifRemplacement: 'Entretien préventif' })}
+              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
+            >
+              + Liquide Frein DOT4
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAddPiece({ designation: 'Liquide de refroidissement organique -35°C', reference: 'GLACELF-5L', quantite: 5, unite: 'L', pieceRemplacee: 'Liquide de refroidissement dégradé', motifRemplacement: 'Entretien préventif' })}
+              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
+            >
+              + Liquide Refroidissement
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAddPiece({ designation: 'Jeu de balais d\'essuie-glace avant plats', reference: 'VALEO-SILENCIO-VF412', quantite: 1, unite: 'jeu', pieceRemplacee: 'Balais craquelés et rayants', motifRemplacement: 'Usure normale' })}
+              className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 rounded-md text-[11px] font-semibold text-slate-800 transition-colors cursor-pointer"
+            >
+              + Balais Essuie-Glace
             </button>
           </div>
         </div>

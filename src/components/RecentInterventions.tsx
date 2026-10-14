@@ -12,6 +12,7 @@ import {
   ArrowRight,
   ShieldCheck,
   AlertTriangle,
+  Plus,
 } from 'lucide-react';
 import { InterventionFormData } from '../types/intervention';
 
@@ -117,6 +118,29 @@ export const RecentInterventions: React.FC<RecentInterventionsProps> = ({
       saveToStorage([]);
       onNotify?.('info', 'Historique local vidé.');
     }
+  };
+
+  // Create a brand new intervention for this vehicle (keeping vehicle info & resetting tasks/signatures)
+  const handleNewFromVehicle = (item: InterventionFormData, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const today = new Date().toISOString().split('T')[0];
+    const randomSuffix = Math.floor(100 + Math.random() * 900);
+    const newForm: InterventionFormData = {
+      ...item,
+      id: `rep-${Date.now()}`,
+      numeroRapport: `INT-${today.replace(/-/g, '')}-${randomSuffix}`,
+      date: today,
+      travaux: [''],
+      pieces: [],
+      anomalies: '',
+      signatureTechnicien: undefined,
+      signatureClient: undefined,
+      nomSignataireClient: '',
+      statutVehicule: 'Prêt à rouler / Conforme',
+      statutMachine: 'Prêt à rouler / Conforme',
+    };
+    onLoadIntervention(newForm);
+    onNotify?.('success', `Nouvelle fiche initiée pour ${item.immatriculation || item.vehicule}`);
   };
 
   // Filter items by plate number or vehicle name
@@ -326,7 +350,17 @@ export const RecentInterventions: React.FC<RecentInterventionsProps> = ({
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => handleNewFromVehicle(item, e)}
+                      className="h-8 px-2.5 bg-amber-100 hover:bg-amber-400 text-slate-900 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                      title="Créer une nouvelle intervention vierge pour ce même véhicule"
+                    >
+                      <Plus className="w-3.5 h-3.5 text-slate-900" />
+                      <span className="hidden sm:inline">Nouvelle</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={(e) => {
